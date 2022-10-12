@@ -13,17 +13,19 @@ import AnimeList from "@/views/AnimeList";
 
 export default {
   components: {AnimeList}
+
 }
 </script>
 
 
-<style lang="scss" >
+<style lang="scss">
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
   font-family: 'Fira Sans', sans-serif;
 }
+
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -47,14 +49,13 @@ nav {
 
 body {
   background-color: #EEE;
+
   main {
     margin: 0 auto;
-    max-width: 850px;
+    max-width: 1000px;
     padding: 1.5rem;
   }
 }
-
-
 
 
 </style>

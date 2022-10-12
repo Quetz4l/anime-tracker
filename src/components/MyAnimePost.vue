@@ -2,15 +2,17 @@
   <div class="anime">
     <img :src="anime.image" :alt="anime.title"/>
     <h3>{{ anime.title }}</h3>
-    <span class="episodes">{{ anime.watched_episodes }} / {{ anime.total_episodes }}</span>
-    <button
-        v-if="anime.total_episodes !== anime.watched_episodes"
-        @click="increaseWatch(anime.id)" class="button">+
-    </button>
-    <button
-        v-if="anime.watched_episodes > 0"
-        @click="decreaseWatch(anime.id)" class="button">-
-    </button>
+    <div class="flex">
+      <span class="episodes">{{ anime.watched_episodes }} / {{ anime.total_episodes }}</span>
+      <button
+          v-if="anime.total_episodes !== anime.watched_episodes"
+          @click="changeEpisode(anime.id, 1)" class="button">+
+      </button>
+      <button
+          v-if="anime.watched_episodes > 0"
+          @click="changeEpisode(anime.id, -1)" class="button">-
+      </button>
+    </div>
   </div>
 </template>
 
@@ -19,19 +21,12 @@ import axios from "axios";
 
 export default {
   name: "MyAnimePost",
-  props: ['anime', 'get_anime'],
+  props: ['anime', 'get_anime', 'user_uuid'],
   methods: {
-    increaseWatch(anime_id) {
-      axios.post(`http://127.0.0.1:5000/inc/${anime_id}`)
-          .catch(() => console.log(`error inc anime ${anime_id}`))
-      this.get_anime()
-      // localStorage.setItem('my_anime', JSON.stringify(this.myAnimeList))
-    },
-    decreaseWatch(anime_id) {
-      axios.post(`http://127.0.0.1:5000/dec/${anime_id}`)
-          .catch(() => console.log(`error dec anime ${anime_id}`))
-      this.get_anime()
-      // localStorage.setItem('my_anime', JSON.stringify(this.myAnimeList))
+    changeEpisode(anime_id, count) {
+      axios.post(`http://127.0.0.1:5000/episode/${count}` , {user_uuid: this.user_uuid, source: 'jikan', external_anime_id: anime_id})
+          .then(()=> this.get_anime())
+          .catch(() => console.log(`error episode change count: ${count} for anime_id: ${anime_id}`))
     },
   },
 }
@@ -77,42 +72,20 @@ export default {
 </style>
 
 <style lang="scss" scoped>
-button {
-  width: 40px;
-  height: 40px;
-}
-
-img {
-  width: 72px;
-  height: 72px;
-  object-fit: cover;
-  border-radius: 1rem;
-  margin-right: 1rem;
-}
-
-h3 {
-  color: #888;
-  font-size: 1.125rem;
-  width: 600px;
-}
-
-.episodes {
-  margin: 0 1rem;
-  color: #888;
-}
-
 .anime {
   display: flex;
+  justify-content: space-between;
   align-items: center;
   margin-bottom: 1.5rem;
   background-color: #FFF;
   padding: 1rem;
   border-radius: 0.5rem;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  width: 750px;
 
   img {
-    width: 72px;
-    height: 72px;
+    width: 100px;
+    height: 100px;
     object-fit: cover;
     border-radius: 1rem;
     margin-right: 1rem;

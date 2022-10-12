@@ -1,11 +1,11 @@
 <template>
-  <FindAnime v-bind:get_anime="get_anime"/>
+  <FindAnime v-bind:get_anime="get_anime" v-bind:user_uuid="user_uuid"/>
   <div>
     <h2>My Anime</h2>
     <h3 v-if="myAnimeList.length===0">Empty :c</h3>
     <div class="my_anime" v-else>
       <template v-for="anime in myAnimeList" :key="anime.title">
-        <MyAnimePost v-bind:anime="anime" v-bind:get_anime="get_anime"/>
+        <MyAnimePost v-bind:anime="anime" v-bind:get_anime="get_anime" v-bind:user_uuid="user_uuid"/>
       </template>
     </div>
   </div>
@@ -25,15 +25,24 @@ export default {
   },
   data() {
     return {
-      myAnimeList: JSON.parse(localStorage.getItem('my_anime')) || [],
-      fastApi: ''
+      myAnimeList: [],
+      user_uuid: localStorage.getItem('user_uuid') || ""
     }
   },
   methods: {
     get_anime() {
-      axios.get('http://127.0.0.1:5000/anime')
+      axios.post('http://127.0.0.1:5000/playlist', {'user_uuid': this.user_uuid})
           .then((response) => {
-            this.myAnimeList = response.data
+            if (response.data.playlist !== undefined) {
+              this.myAnimeList = response.data.playlist
+            }
+
+            if (response.data['user_uuid'] !== undefined){
+              this.user_uuid = response.data.user_uuid
+              localStorage.setItem('user_uuid', this.user_uuid)
+              console.log('saved')
+            }
+
           })
           .catch(() => console.log(`error GET all anime `))
     }
@@ -44,6 +53,12 @@ export default {
 }
 
 </script>
+
+<style>
+.flex{
+  display: flex;
+}
+</style>
 
 <style scoped>
 .my_anime {
@@ -62,6 +77,4 @@ h2 {
   font-weight: 400;
   margin-bottom: 1.5rem;
 }
-
-
 </style>

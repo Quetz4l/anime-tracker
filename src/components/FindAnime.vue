@@ -1,7 +1,7 @@
 <template>
   <form @submit.prevent="searchAnimeByName">
-    <input type="text" placeholder="Найти аниме..." v-model="searchQuery"/>
-    <button type="submit" class="button">Search</button>
+    <input type="text" placeholder="Найти аниме..." v-model="searchQuery" />
+    <button type="submit" class="button" >Search</button>
   </form>
 
   <div class="result_wrapper" v-if="searchResults.length > 0 && !closeResults">
@@ -17,7 +17,7 @@
           </ul>
           <p :title="anime.synopsis" v-if="anime.synopsis">{{ anime.synopsis.slice(0, 250) }}...</p>
           <span class="flex-1"></span>
-          <button @click="addAnime(anime)" class="button">Add to My Anime</button>
+          <button @click="addAnimeToPlaylist(anime)" class="button">Add to My Anime</button>
         </div>
       </div>
     </div>
@@ -38,17 +38,11 @@ export default {
       // searchResults: localStorage.getItem('find'),
     }
   },
-  props: ['get_anime'],
+  props: ['get_anime', 'user_uuid'],
   methods: {
 
-    addAnime(anime) {
-      // let my_anime = JSON.parse(localStorage.getItem('my_anime')) || [];
-      //   localStorage.setItem('my_anime', JSON.stringify(my_anime))
-      let new_anime = {
-        id: anime.mal_id,
-        title: anime.title,
-      }
-      this.post_anime(new_anime)
+    addAnimeToPlaylist(anime) {
+      this.postAddAnimeToPlaylist(anime.mal_id)
       this.get_anime()
     },
 
@@ -56,13 +50,17 @@ export default {
       axios.get('https://api.jikan.moe/v4/anime', {params: {q: this.searchQuery}})
           .then((response) => {
             this.searchResults = response.data.data
+            this.closeResults = false
           })
           .catch((e) => console.log(e))
     },
 
-    post_anime(anime) {
-      axios.post('http://127.0.0.1:5000/anime', anime)
-          .catch(() => console.log(`error post anime ${anime.id}`))
+    postAddAnimeToPlaylist(anime_id) {
+      axios.post('http://127.0.0.1:5000/add', {user_uuid: this.user_uuid, source: 'jikan', external_anime_id: anime_id})
+          .then(() => {
+            this.get_anime()
+          })
+          .catch(() => console.log(`error adding anime: ${anime_id}`))
     }
   },
 }
